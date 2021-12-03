@@ -1,22 +1,19 @@
-# Copyright Benoit Blanchon 2014-2016
+# ArduinoJson - arduinojson.org
+# Copyright Benoit Blanchon 2014-2020
 # MIT License
-# 
-# Arduino JSON library
-# https://github.com/bblanchon/ArduinoJson
-# If you like this project, please add a star!
 
-cmake_minimum_required(VERSION 2.8.12)
-project(ArduinoJson)
+cmake_minimum_required(VERSION 3.0)
 
-enable_testing()
+project(ArduinoJson VERSION 6.17.2)
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
-
-if(${COVERAGE})
-	set(CMAKE_CXX_FLAGS "-g -O0 -fprofile-arcs -ftest-coverage")
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    include(CTest)
 endif()
 
 add_subdirectory(src)
-add_subdirectory(test)
+
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
+	include(extras/CompileOptions.cmake)
+	add_subdirectory(extras/tests)
+	add_subdirectory(extras/fuzzing)
+endif()

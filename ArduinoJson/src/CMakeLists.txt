@@ -1,71 +1,90 @@
-# Copyright Benoit Blanchon 2014-2016
+# ArduinoJson - arduinojson.org
+# Copyright Benoit Blanchon 2014-2020
 # MIT License
-# 
-# Arduino JSON library
-# https://github.com/bblanchon/ArduinoJson
-# If you like this project, please add a star!
 
-file(GLOB_RECURSE HPP_FILES ../include/*.hpp)
-file(GLOB_RECURSE IPP_FILES ../include/*.ipp)
-file(GLOB_RECURSE CPP_FILES *.cpp)
+# I have no idea what this is about, I simply followed the instructions from:
+# https://dominikberner.ch/cmake-interface-lib/
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
-	add_compile_options(
-		-fno-exceptions
-		-fno-rtti
-		-pedantic
-		-Wall
-		-Wcast-align
-		-Wcast-qual
-		-Wconversion
-		-Wctor-dtor-privacy
-		-Wdisabled-optimization
-		-Werror
-		-Wextra
-		-Wformat=2
-		-Winit-self
-		-Wmissing-include-dirs
-		-Wno-parentheses
-		-Wno-sign-conversion
-		-Wno-unused
-		-Wno-variadic-macros
-		-Wnon-virtual-dtor
-		-Wold-style-cast
-		-Woverloaded-virtual
-		-Wredundant-decls
-		-Wshadow
-		-Wsign-promo
-		-Wstrict-overflow=5
-		-Wundef
-	)
+add_library(ArduinoJson INTERFACE)
+
+include(GNUInstallDirs)
+
+# Adding the install interface generator expression makes sure that the include
+# files are installed to the proper location (provided by GNUInstallDirs)
+target_include_directories(ArduinoJson
+    INTERFACE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
+target_compile_definitions(ArduinoJson
+    INTERFACE
+        ARDUINOJSON_DEBUG=$<CONFIG:Debug>
+)
+
+# locations are provided by GNUInstallDirs
+install(
+    TARGETS
+        ArduinoJson
+    EXPORT
+        ArduinoJson_Targets
+    ARCHIVE DESTINATION
+        ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION
+        ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION
+        ${CMAKE_INSTALL_BINDIR}
+)
+
+include(CMakePackageConfigHelpers)
+
+if(${CMAKE_VERSION} VERSION_GREATER "3.14.0") 
+    set(ARCH_INDEPENDENT "ARCH_INDEPENDENT")
 endif()
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-	add_compile_options(
-		-Wstrict-null-sentinel
-	)
+write_basic_package_version_file(
+        "${PROJECT_BINARY_DIR}/ArduinoJsonConfigVersion.cmake"
+    VERSION
+        ${PROJECT_VERSION}
+    COMPATIBILITY
+        SameMajorVersion
+    ${ARCH_INDEPENDENT}
+)
 
-	if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.5)
-		add_compile_options(-Wlogical-op) # the flag exists in 4.4 but is buggy
-	endif()
+configure_package_config_file(
+        "${PROJECT_SOURCE_DIR}/extras/ArduinoJsonConfig.cmake.in"
+        "${PROJECT_BINARY_DIR}/ArduinoJsonConfig.cmake"
+    INSTALL_DESTINATION
+        ${CMAKE_INSTALL_DATAROOTDIR}/ArduinoJson/cmake)
 
-	if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.6)
-		add_compile_options(-Wnoexcept)
-	endif()
-endif()
+install(
+    EXPORT
+        ArduinoJson_Targets
+    FILE
+        ArduinoJsonTargets.cmake
+    DESTINATION
+        ${CMAKE_INSTALL_DATAROOTDIR}/ArduinoJson/cmake
+)
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-	add_compile_options(
-		-Wc++11-compat
-		-Wdeprecated-register
-	)
-endif()
+install(
+    FILES
+        "${PROJECT_BINARY_DIR}/ArduinoJsonConfig.cmake"
+        "${PROJECT_BINARY_DIR}/ArduinoJsonConfigVersion.cmake"
+    DESTINATION
+        "${CMAKE_INSTALL_DATAROOTDIR}/ArduinoJson/cmake"
+)
 
-if(MSVC)
-	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-	add_compile_options(-W4)
-endif()
+install(
+    FILES
+        ArduinoJson.h
+        ArduinoJson.hpp
+    DESTINATION
+        include
+)
 
-add_library(ArduinoJson ${CPP_FILES} ${HPP_FILES} ${IPP_FILES})
-
-target_include_directories(ArduinoJson INTERFACE ${CMAKE_CURRENT_LIST_DIR}/../include)
+install(
+    DIRECTORY
+        "${CMAKE_CURRENT_SOURCE_DIR}/ArduinoJson"
+    DESTINATION
+        include
+)
