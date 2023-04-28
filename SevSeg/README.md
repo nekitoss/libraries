@@ -66,7 +66,7 @@ Bottom Row: E D DP C G 4
 The Wokwi team has created sample simulations of the examples in this library:
 [Wokwi SevSeg_Counter Example][6].  
 [Wokwi stringWithPeriod Example][7].  
-[Wokwi testWholeDisplay Example][7].  
+[Wokwi testWholeDisplay Example][8].  
  
 
 ## Software
@@ -102,42 +102,15 @@ void setup() {
 If you wish to use more than 8 digits, increase MAXNUMDIGITS in SevSeg.h.
 
 
-### Setting a number
-
-```c++
-sevseg.setNumber(3141,3); // Displays '3.141'
-```
-
-The first argument is the number to display. The second argument indicates where the decimal place should be, counted from the least significant digit. E.g. to display an integer, the second argument is 0.
-Floats are supported. In this case, the second argument indicates how many decimal places of precision you want to display. E.g:
-
-```c++
-sevseg.setNumber(3.14159f,3); //Displays '3.141'
-```
-
-Out of range numbers are shown as '----'.
-
-If the second argument is -1 or omitted, there will be no decimal place.
-
-Enter 'true' as the third agument to display the number in hexadecimal representation.
-
-
-### Setting a character string
-
-```c++
-sevseg.setChars("abcd");
-```
-
-Character arrays can be displayed - as accurately as possible on a seven segment display. See SevSeg.cpp digitCodeMap[] to notes on each character. Only alphanumeric characters, plus ' ', '-' and '.' are supported. The character array should be NULL terminated.
-
-
 ### Refreshing the display
 
 ```c++
 sevseg.refreshDisplay();
 ```
 
-Your program must run the refreshDisplay() function repeatedly to display the number. Note that any delays introduced by other functions will produce undesirable effects on the display.
+Your program must run the refreshDisplay() function repeatedly to display the number. 
+**Warning: Any calls to delay() will interfere with the display.**
+Any delays introduced by other functions will produce undesirable effects on the display. If you need help getting away from delay() statements, I recommend the simple [Blink Without Delay][9] arduino example sketch.
 
 To blank the display, call:
 
@@ -145,6 +118,44 @@ To blank the display, call:
 sevseg.blank();
 ```
 
+### Setting a number
+#### Integer
+```c++
+sevseg.setNumber(3141,3); // Displays '3.141'
+```
+The first argument is the number to display. The second argument indicates where the decimal place should be, counted from the least significant digit. E.g. to display an integer, the second argument is 0.
+
+#### Floating point
+```c++
+sevseg.setNumberF(3.14159f,3); //Displays '3.141'
+```
+Floats are supported. In this case, the second argument indicates how many decimal places of precision you want to display.
+
+Note that:
+
+ - Out of range numbers are shown as '----'. 
+ - If the second argument is -1 or omitted, there will be no decimal place. 
+ - Enter 'true' as the third argument to display the number in hexadecimal representation (instead of decimal)
+
+### Setting a character string
+
+```c++
+sevseg.setChars("abcd");
+```
+
+Character arrays can be displayed - as accurately as possible on a seven segment display. See SevSeg.cpp digitCodeMap[] to notes on each character. Only alphanumeric characters, plus ' ', '-', '_', and '.' are supported. The character array should be NULL terminated.
+
+### Custom display setting
+```c++
+// Set the segments for every digit on the display
+uint8_t segs[4] = {0, 0x5B, 0x6D, 0x63};
+sevseg.setSegments(segs);
+```
+```c++
+// Set the segments for a single digit. Set digit 3 to 0x63. 
+sevseg.setSegmentsDigit(3, 0x63);
+```
+You can manipulate individual segments if needed. Each byte represents the display of a single digit, with each bit representing a single segment. The bits represent segments in the order .GFEDCBA. See SevSeg.cpp for more examples of these 'digitCodes'.
 
 ### Setting the brightness
 
@@ -189,3 +200,4 @@ SOFTWARE.
 [6]: https://wokwi.com/arduino/libraries/SevSeg/SevSeg_Counter
 [7]: https://wokwi.com/arduino/libraries/SevSeg/stringWithPeriod
 [8]: https://wokwi.com/arduino/libraries/SevSeg/testWholeDisplay
+[9]: https://www.arduino.cc/en/Tutorial/BuiltInExamples/BlinkWithoutDelay

@@ -142,7 +142,6 @@ Adafruit_PCD8544::Adafruit_PCD8544(int8_t dc_pin, int8_t cs_pin, int8_t rst_pin,
  */
 void Adafruit_PCD8544::drawPixel(int16_t x, int16_t y, uint16_t color) {
   setPixel(x, y, color, pcd8544_buffer);
-  updateBoundingBox(x, y, x, y);
 }
 
 /*!
@@ -174,6 +173,7 @@ void Adafruit_PCD8544::setPixel(int16_t x, int16_t y, bool color,
     y = t;
     break;
   }
+  updateBoundingBox(x, y, x, y);
 
   // x is which column
   if (color)
